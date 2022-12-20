@@ -3,86 +3,77 @@ import pygame
 # Initialize Pygame
 pygame.init()
 
-# Set up the game window
-window_width = 800
-window_height = 600
-window = pygame.display.set_mode((window_width, window_height))
-pygame.display.set_caption('Pac-Man')
+# Set the window dimensions
+window_width = 400
+window_height = 400
 
-# Set up the game loop
+# Create the window
+window = pygame.display.set_mode((window_width, window_height))
+
+# Set the window caption
+pygame.display.set_caption("Tic-Tac-Toe")
+
+# Create a 2D list to represent the game board
+board = [[None, None, None], [None, None, None], [None, None, None]]
+
+
+# Create a function to draw the game board
+def draw_board():
+    # Set the line thickness
+    thickness = 4
+
+    # Draw the horizontal lines
+    pygame.draw.line(window, (0, 0, 0), (0, window_height / 3), (window_width, window_height / 3), thickness)
+    pygame.draw.line(window, (0, 0, 0), (0, 2 * window_height / 3), (window_width, 2 * window_height / 3), thickness)
+
+    # Draw the vertical lines
+    pygame.draw.line(window, (0, 0, 0), (window_width / 3, 0), (window_width / 3, window_height), thickness)
+    pygame.draw.line(window, (0, 0, 0), (2 * window_width / 3, 0), (2 * window_width / 3, window_height), thickness)
+
+
+# Run the game loop
 running = True
 while running:
-    # Handle events
+    # Get the list of user events
     for event in pygame.event.get():
+        # Check if the user clicked the close button
         if event.type == pygame.QUIT:
             running = False
 
-    # Update game state
+        # Check if the user clicked the mouse button
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Get the mouse position
+            mouse_x, mouse_y = pygame.mouse.get_pos()
 
-    # Draw game board
-    game_board = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 1, 0, 1, 1, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 1, 0, 1, 1, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ]
-    for row in range(len(game_board)):
-        for col in range(len(game_board[row])):
-            if game_board[row][col] == 1:
-                pygame.draw.rect(window, (0, 0, 0), (col*80, row*80, 80, 80))
-            else:
-                pygame.draw.rect(window, (255, 255, 255), (col*80, row*80, 80, 80))
+            # Calculate the row and column of the board based on the mouse position
+            row = mouse_y // (window_height / 3)
+            col = mouse_x // (window_width / 3)
 
-    # Update player character
+            # Update the game board based on the row and column
+            board[row][col] = "X"  # Replace with player's symbol
 
-    player_x = 0
-    player_y = 0
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        player_x -= 1
-    if keys[pygame.K_RIGHT]:
-        player_x += 1
-    if keys[pygame.K_UP]:
-        player_y -= 1
-    if keys[pygame.K_DOWN]:
-        player_y += 1
-    pygame.draw.rect(window, (255, 0, 0), (player_x*80, player_y*80, 80, 80))
+# Use Pygame's font module to render the player's symbols
+font = pygame.font.Font(None, 100)
 
-    # Update ghost characters
-    ghost_x = 5
-    ghost_y = 3
-    ghost_target_x = player_x
-    ghost_target_y = player_y
-    if ghost_x < ghost_target_x:
-        ghost_x += 1
-    elif ghost_x > ghost_target_x:
-        ghost_x -= 1
-    if ghost_y < ghost_target_y:
-        ghost_y += 1
-    elif ghost_y > ghost_target_y:
-        ghost_y -= 1
-    pygame.draw.rect(window, (0, 255, 0), (ghost_x*80, ghost_y*80, 80, 80))
 
-    # Update pellets
-    pellets = [(1, 1), (3, 2), (5, 3)]
-    score = 0
-    # Check for pellet collisions
-    for pellet in pellets:
-      if pellet == (player_x, player_y):
-        pellets.remove(pellet)
-        score += 1
+# Create a function to draw the player's symbols on the board
+def draw_symbols():
+    for i in range(3):
+        for j in range(3):
+            symbol = board[i][j]
+            if symbol:
+                # Calculate the position of the symbol on the board
+                x = j * (window_width / 3) + (window_width / 6)
+                y = i * (window_height / 3) + (window_height / 6)
+                text = font.render(symbol, True, (0, 0, 0))
+                text_rect = text.get_rect()
+                text_rect.center = (x, y)
+                window.blit(text, text_rect)
 
-    # Draw score
-    font = pygame.font.Font(None, 36)
-    text = font.render(f'Score: {score}', 1, (255, 255, 255))
-    window.blit(text, (10, 10))
 
-    # Update display
+# Update the game board and draw the symbols on the screen
+def update_board():
+    window.fill((255, 255, 255))
+    draw_board()
+    draw_symbols()
     pygame.display.update()
-
-# Quit Pygame
-pygame.quit()
-
